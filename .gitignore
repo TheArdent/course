@@ -1,0 +1,58 @@
+node_modules
+public/storage
+public/packages/
+public/vendor/
+# ------------------ Sitemaps -------------------
+sitemap.xml
+public/sitemaps
+config/front.php
+vendor
+.idea
+
+docker/caddy/Caddyfile
+Homestead.json
+Homestead.yaml
+.phpstorm.meta.php
+.env
+_ide_helper.php
+npm-debug.log
+.vscode
+# Version json
+version.json
+
+#     OS generated files         #
+##################################
+.DS_Store
+.DS_Store?
+# ._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# CSS/JS Builds
+public/css/*
+public/js/*
+public/fonts/*
+
+public/packages
+public/vendor
+
+public/media/flyers/*
+
+# Client
+client/npm-debug.log
+client/.vscode
+
+public/static
+/storage/*.key
+
+# Sitemap
+public/sitemaps/*.xml
+public/sitemap.xml
+
+
+docker-compose-dev.yml
+docker-compose.yml
+docker-sync.yml
+

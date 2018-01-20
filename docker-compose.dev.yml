@@ -1,0 +1,68 @@
+version: '2'
+services:
+  data:
+    image: busybox
+    container_name: osr_data
+    volumes:
+      - /data
+      - /var/lib/mysql
+
+  redis:
+    image: redis
+    container_name: osr_redis
+    ports:
+      - '6379:6379'
+    volumes_from:
+      - data
+
+  mysql:
+    image: mysql
+    container_name: osr_mysql
+    ports:
+      - '3306:3306'
+    environment:
+      - "MYSQL_ROOT_PASSWORD=secret"
+      - "MYSQL_DATABASE=osr"
+    volumes_from:
+      - data
+
+  front:
+    image: abiosoft/caddy
+    container_name: osr_caddy
+    environment:
+      - CADDYPATH=/etc/caddycerts
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - './docker/caddy/Caddyfile:/etc/Caddyfile'
+      - './docker/caddy/caddyssl:/etc/caddycerts'
+    depends_on:
+      - app
+    volumes_from:
+      - app
+
+  websocket:
+    build: './docker/centrifugo/'
+    container_name: osr_websocket
+    ports:
+      - '8000:8000'
+    volumes:
+      - './docker/centrifugo/config.dev.json:/centrifugo/config.json'
+    depends_on:
+      - front
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+
+  app:
+    image: 'osr:build'
+    build: ./backend
+    container_name: osr_app
+    volumes:
+      - '.:/app:rw'
+    depends_on:
+      - mysql
+      - redis
+    command: /usr/local/sbin/php-fpm --allow-to-run-as-root

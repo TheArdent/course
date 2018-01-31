@@ -9,6 +9,9 @@ use GuzzleHttp\Client;
 class OSM
 {
 
+    /**
+     * @var Client
+     */
     protected $client;
 
     public function __construct()
@@ -18,6 +21,11 @@ class OSM
         ]);
     }
 
+    /**
+     * @param $lat
+     * @param $lon
+     * @return Address|bool
+     */
     public function getAddress($lat, $lon)
     {
         $data = [
@@ -44,15 +52,20 @@ class OSM
         ]);
     }
 
+
+    /**
+     * @param $address
+     * @return bool|\Generator
+     */
     public function validateAddress($address)
     {
         $data = [
             'accept-language' => 'ru',
-            'zoom' => 18,
-            'format' => 'json',
+            'zoom'            => 18,
+            'format'          => 'json',
             'addressdetails'  => '1',
             'countrycodes'    => 'ua',
-            'q'  => 'Киев,'.$address,
+            'q'               => 'Киев,'.$address,
         ];
 
         $response = $this->client->get('search?'.http_build_query($data));
@@ -64,9 +77,9 @@ class OSM
         }
 
         foreach ($response as $item) {
-             yield new Address([
+            yield new Address([
                 'street' => $item->address->road,
-                'house' => $item->address->house_number,
+                'house'  => $item->address->house_number,
             ]);
         }
     }

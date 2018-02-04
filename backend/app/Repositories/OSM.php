@@ -24,7 +24,7 @@ class OSM
     /**
      * @param $lat
      * @param $lon
-     * @return Address|bool
+     * @return array|bool
      */
     public function getAddress($lat, $lon)
     {
@@ -46,16 +46,13 @@ class OSM
             return false;
         }
 
-        return new Address([
-            'street' => $response->address->road,
-            'home'   => $response->address->house_number,
-        ]);
+        return [$response->address->road];
     }
 
 
     /**
      * @param $address
-     * @return bool|\Generator
+     * @return array|bool
      */
     public function validateAddress($address)
     {
@@ -76,11 +73,12 @@ class OSM
             return false;
         }
 
+        $data = [];
+
         foreach ($response as $item) {
-            yield new Address([
-                'street' => $item->address->road,
-                'house'  => $item->address->house_number,
-            ]);
+            $data[] = $item->address->road;
         }
+
+        return $data;
     }
 }

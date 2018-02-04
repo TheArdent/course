@@ -20,7 +20,7 @@ class Taxi838 implements TaxiInterface
     /**
      * @var string
      */
-    private $apiUrl = 'http://62.80.190.56:8181/';
+    private $apiUrl = 'http://rainbow.evos.in.ua/';
 
     /**
      * @var Address
@@ -52,17 +52,25 @@ class Taxi838 implements TaxiInterface
      */
     public function sendRequest()
     {
-        $request = new Request('POST', 'ru-RU/5b68cf6c-9260-42eb-a41b-824a3e52d551/WebOrders/CalcCost', [
+        $request = new Request('POST', 'ru-RU/adfe0530-4bd0-4ac2-98bd-db25ef337af4/WebOrders/CalcCost', [
             'headers' => $this->getHeaders(),
         ]);
 
         $response = $this->client->sendAsync($request, [
             'form_params' => $this->getBody()
         ])->then(function (ResponseInterface $response) {
+            $html = (string)$response->getBody();
+
+            $span_start = strpos($html,'<span id="dCostBlock">') + 22;
+            $span_end = strpos($html, '</span>', $span_start) - 8;
+
+
+            $price = intval(substr($html,$span_start, $span_end - $span_start));
+
+
+            dd($price);
             echo $response->getBody();
         });
-
-//        app('')
 
         $response->wait();
 
@@ -99,14 +107,14 @@ class Taxi838 implements TaxiInterface
     {
         return [
             'LocationFrom.Address'         => $this->from->street,
-            'LocationFrom.AddressNumber'   => $this->from->house,
+            'LocationFrom.AddressNumber'   => $this->from->home,
             'LocationFrom.Entrance'        => '',
             'LocationFrom.IsStreet'        => 'True',
             'LocationFrom.Comment'         => '',
             'IsRouteUndefined'             => 'false',
             'LocationsTo[0].Address'       => $this->to->street,
             'LocationsTo[0].AddressNumber' => $this->to->home,
-            'LocationsTo[0].IsStreet'      => 'False',
+            'LocationsTo[0].IsStreet'      => 'True',
             'ReservationType'              => 'None',
             'ReservationDate'              => '',
             'ReservationTime'              => '',
@@ -127,5 +135,20 @@ class Taxi838 implements TaxiInterface
             'calcCostInProgress'           => 'False',
             'IsPayBonuses'                 => 'False',
         ];
+    }
+
+    static public function researchAddress($address)
+    {
+        $client = new Client();
+        $response = $client->request('GET','http://rainbow.evos.in.ua/uk-UA/adfe0530-4bd0-4ac2-98bd-db25ef337af4/Address/Find?q=' . $address . '&limit=5');
+
+        $response = (string)$response->getBody();
+
+        if (strpos($response,"<span disabled='disabled'>") !== false)
+            return false;
+
+        $response = array_filter(explode(PHP_EOL, $response));
+
+        return $response;
     }
 }

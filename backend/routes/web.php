@@ -46,3 +46,5 @@ Route::get('/', function () {
     $t->sendRequest();
 
 });
+
+Route::post('/telegram', 'TelegramController@index');

@@ -38,15 +38,19 @@ class OSM
             'lon'             => $lon
         ];
 
-        $response = $this->client->get('reverse?'.http_build_query($data));
+        try {
+            $response = $this->client->get('reverse?'.http_build_query($data));
+            $response = json_decode((string)$response->getBody());
 
-        $response = json_decode((string)$response->getBody());
+            if (! $response->address) {
+                return false;
+            }
 
-        if (! $response->address) {
+            return [$response->address->road];
+        } catch (\Exception $e) {
+            \Log::error('Failed to get address from OSM : ' . $e->getMessage());
             return false;
         }
-
-        return [$response->address->road];
     }
 
 
@@ -65,20 +69,24 @@ class OSM
             'q'               => 'Киев,'.$address,
         ];
 
-        $response = $this->client->get('search?'.http_build_query($data));
+        try {
+            $response = $this->client->get('search?'.http_build_query($data));;
+            $response = json_decode((string)$response->getBody());
 
-        $response = json_decode((string)$response->getBody());
+            if (empty($response)) {
+                return false;
+            }
 
-        if (empty($response)) {
+            $data = [];
+
+            foreach ($response as $item) {
+                $data[] = $item->address->road;
+            }
+
+            return $data;
+        } catch (\Exception $e) {
+            \Log::error('Failed to validate address from OSM : '. $e->getMessage());
             return false;
         }
-
-        $data = [];
-
-        foreach ($response as $item) {
-            $data[] = $item->address->road;
-        }
-
-        return $data;
     }
 }

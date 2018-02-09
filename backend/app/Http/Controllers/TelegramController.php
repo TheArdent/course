@@ -7,6 +7,8 @@ use BotMan\BotMan\BotMan;
 use BotMan\BotMan\BotManFactory;
 use BotMan\BotMan\Cache\RedisCache;
 use BotMan\BotMan\Drivers\DriverManager;
+use BotMan\Drivers\Telegram\Extensions\Keyboard;
+use BotMan\Drivers\Telegram\Extensions\KeyboardButton;
 
 class TelegramController extends Controller
 {
@@ -23,6 +25,13 @@ class TelegramController extends Controller
 //            $bot->reply('Добро пожаловать в TelegramTaxiBot');
 //        });
 
+//        $botman->hears('Hi', function (BotMan $bot) {
+//
+//            $bot->reply('Добро пожаловать в TelegramTaxiBot', $keyboard->toArray());
+//        });
+//
+//
+//
 // Give the bot something to listen for.
         $botman->hears('Hi', function (BotMan $bot) {
             $bot->startConversation(new GetAddressConversation());

@@ -70,7 +70,7 @@ class OSM
         ];
 
         try {
-            $response = $this->client->get('search?'.http_build_query($data));;
+            $response = $this->client->get('search?'.http_build_query($data));
             $response = json_decode((string)$response->getBody());
 
             if (empty($response)) {
@@ -80,7 +80,8 @@ class OSM
             $data = [];
 
             foreach ($response as $item) {
-                $data[] = $item->address->road;
+                if (isset($item->address->road))
+                    $data[] = $item->address->road;
             }
 
             return $data;

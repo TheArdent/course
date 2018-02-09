@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Repositories\OSM;
+use App\Repositories\Visicom;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -29,6 +30,9 @@ class AppServiceProvider extends ServiceProvider
 		}
 		$this->app->singleton('osm', function ($app) {
 		    return new OSM();
+        });
+		$this->app->singleton('visicom', function ($app) {
+		    return new Visicom();
         });
 	}
 }

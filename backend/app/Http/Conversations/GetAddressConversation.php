@@ -2,12 +2,13 @@
 
 namespace App\Http\Conversations;
 
-use App\Repositories\TaxiStreetValidator;
+use App\Models\Address;
+use App\Repositories\Taxi;
 use BotMan\BotMan\Messages\Conversations\Conversation;
 use BotMan\BotMan\Messages\Incoming\Answer;
 use BotMan\Drivers\Telegram\Extensions\Keyboard;
 use BotMan\Drivers\Telegram\Extensions\KeyboardButton;
-use Log;
+use GuzzleHttp\Client;
 
 class GetAddressConversation extends Conversation
 {
@@ -36,11 +37,11 @@ class GetAddressConversation extends Conversation
             }
 
             if ($addr) {
-                $keyboard      = Keyboard::create(Keyboard::TYPE_KEYBOARD);
+                $keyboard      = Keyboard::create(Keyboard::TYPE_KEYBOARD)->oneTimeKeyboard();
                 $clear_address = [];
 
                 foreach ($addr as $item) {
-                    foreach (TaxiStreetValidator::researchAddress($item) as $street) {
+                    foreach (Taxi::researchAddress($item) as $street) {
                         if (array_search($item, $clear_address) === false) {
                             $clear_address[] = trim(preg_replace('/\s\s+/', '', $street));
                         }
@@ -78,6 +79,58 @@ class GetAddressConversation extends Conversation
 
             $this->ask('Введите номер дома', function (Answer $answer) {
                 $this->to_number = $answer->getText();
+
+                $from = new Address([
+                    'street' => $this->from_street,
+                    'home'   => $this->from_number,
+                ]);
+
+                $to = new Address([
+                    'street' => $this->to_street,
+                    'home'   => $this->to_number,
+                ]);
+
+
+                $client = new Client([
+                    'base_uri' => 'http://rainbow.evos.in.ua/',
+                ]);
+
+                $body = Taxi::getBody($from, $to);
+
+                $prices = [];
+
+
+                /** @var \App\Repositories\TaxiInterface $item */
+                foreach (Taxi::getTaxiCompanies() as $item) {
+                    $request = $item->getRequest();
+
+                    $response = $client->send($request, [
+                        'form_params' => $body,
+                    ]);
+
+                    $html = (string)$response->getBody();
+
+                    $start_pos = strpos($html, '<span id="dCostBlock">');
+
+                    if (strpos($html, '<span id="dCostBlock">') !== false) {
+                        $span_start = $start_pos + 22;
+                        $span_end   = strpos($html, '</span>', $span_start) - 8;
+
+                        $price = intval(substr($html, $span_start, $span_end - $span_start));
+
+                        $prices[$item->name] = $price;
+                    }
+                }
+
+                if (! empty($prices)) {
+                    asort($prices);
+                    $min     = reset($prices);
+                    $company = key($prices);
+
+                    $this->say('Минимальная стоимость '.$min.'грн, компания - '.$company);
+                } else {
+                    $this->say('По Вашему запросу такси не найденно');
+                }
             });
         }, $keyboard->toArray());
     }
@@ -92,11 +145,11 @@ class GetAddressConversation extends Conversation
             $addr = $osm->validateAddress($answer->getText());
 
             if ($addr) {
-                $keyboard      = Keyboard::create(Keyboard::TYPE_KEYBOARD);
+                $keyboard      = Keyboard::create(Keyboard::TYPE_KEYBOARD)->oneTimeKeyboard();
                 $clear_address = [];
 
                 foreach ($addr as $item) {
-                    foreach (TaxiStreetValidator::researchAddress($item) as $street) {
+                    foreach (Taxi::researchAddress($item) as $street) {
                         if (array_search($item, $clear_address) === false) {
                             $clear_address[] = trim(preg_replace('/\s\s+/', '', $street));
                         }

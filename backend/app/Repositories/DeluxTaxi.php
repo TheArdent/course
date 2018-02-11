@@ -4,20 +4,20 @@ namespace App\Repositories;
 
 use GuzzleHttp\Psr7\Request;
 
-class Taxi838 implements TaxiInterface
+class DeluxTaxi implements TaxiInterface
 {
 
     /**
      * @var string
      */
-    public $name = 'Taxi838';
+    public $name = 'DeluxTaxi';
 
     /**
      * @return Request
      */
     public function getRequest()
     {
-        return new Request('POST', 'ru-RU/adfe0530-4bd0-4ac2-98bd-db25ef337af4/WebOrders/CalcCost', [
+        return new Request('POST', 'ru-RU/cec546e8-bed3-41eb-b998-ef79ca125099/WebOrders/CalcCost', [
             'headers' => $this->getHeaders(),
         ]);
     }

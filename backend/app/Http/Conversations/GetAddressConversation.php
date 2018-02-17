@@ -24,7 +24,7 @@ class GetAddressConversation extends Conversation
             KeyboardButton::create('Send Location')->requestLocation()
         );
 
-        $this->ask('От куда?', function (Answer $answer) {
+        $this->ask('Звідки?', function (Answer $answer) {
 //            $osm = app('osm');
             $osm = app('visicom');
             $this->say('Шукаю');
@@ -53,7 +53,7 @@ class GetAddressConversation extends Conversation
                 }
                 $this->askFromNumber($keyboard);
             } else {
-                $this->say('Невозможно определить адресс,введите его вручную или повторите попытку позже');
+                $this->say('Неможливо визначити адресу, введіть його вручну або спробуйте ще раз');
                 $this->stopsConversation($answer->getMessage());
             }
         }, $keyboard->toArray());
@@ -61,10 +61,10 @@ class GetAddressConversation extends Conversation
 
     protected function askFromNumber(Keyboard $keyboard)
     {
-        $this->ask('Выберите адресс', function (Answer $answer) {
+        $this->ask('Оберіть адресу', function (Answer $answer) {
             $this->from_street = $answer->getText();
 
-            $this->ask('Введите номер дома', function (Answer $answer) {
+            $this->ask('Введіть номер будинку', function (Answer $answer) {
                 $this->from_number = $answer->getText();
 
                 $this->askToLocation();
@@ -74,10 +74,10 @@ class GetAddressConversation extends Conversation
 
     protected function askToNumber(Keyboard $keyboard)
     {
-        $this->ask('Выберите адресс', function (Answer $answer) {
+        $this->ask('Оберіть адресу', function (Answer $answer) {
             $this->to_street = $answer->getText();
 
-            $this->ask('Введите номер дома', function (Answer $answer) {
+            $this->ask('Введіть номер будинку', function (Answer $answer) {
                 $this->to_number = $answer->getText();
 
                 $from = new Address([
@@ -127,9 +127,9 @@ class GetAddressConversation extends Conversation
                     $min     = reset($prices);
                     $company = key($prices);
 
-                    $this->say('Минимальная стоимость '.$min.'грн, компания - '.$company);
+                    $this->say('Мінімальна вартість '.$min.'грн, компанія - '.$company);
                 } else {
-                    $this->say('По Вашему запросу такси не найденно');
+                    $this->say('За Вашим запитом нічого не знайденно.');
                 }
             });
         }, $keyboard->toArray());
@@ -137,7 +137,7 @@ class GetAddressConversation extends Conversation
 
     public function askToLocation()
     {
-        $this->ask('Куда едем?', function (Answer $answer) {
+        $this->ask('Куди їдемо?', function (Answer $answer) {
 //            $osm = app('osm');
             $osm = app('visicom');
             $this->say('Шукаю');
@@ -161,7 +161,7 @@ class GetAddressConversation extends Conversation
                 }
                 $this->askToNumber($keyboard);
             } else {
-                $this->say('Невозможно определить адресс,введите его вручную или повторите попытку позже');
+                $this->say('Неможливо визначити адресу, введіть його вручну або спробуйте ще раз');
                 $this->stopsConversation($answer->getMessage());
             }
         });

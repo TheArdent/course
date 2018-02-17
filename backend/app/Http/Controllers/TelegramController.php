@@ -21,9 +21,9 @@ class TelegramController extends Controller
 // Create an instance
         $botman = app('botman');
 
-//        $botman->hears('/start', function (BotMan $bot) {
-//            $bot->reply('Добро пожаловать в TelegramTaxiBot');
-//        });
+        $botman->hears('/start', function (BotMan $bot) {
+            $bot->reply('Вітаю! Я TelegramTaxiBot допоможу знайти найдешевше таксі в Києві! Напиши `Почати` щоб розпочати пошук.');
+        });
 
 //        $botman->hears('Hi', function (BotMan $bot) {
 //
@@ -33,7 +33,7 @@ class TelegramController extends Controller
 //
 //
 // Give the bot something to listen for.
-        $botman->hears('Hi', function (BotMan $bot) {
+        $botman->hears('Почати', function (BotMan $bot) {
             $bot->startConversation(new GetAddressConversation());
         });
 
